@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MBPS Deal Packet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- PWA manifest + theme color -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#10b981" />
+
+  <!-- Icons (place PNGs in /icons) -->
+  <link rel="apple-touch-icon" sizes="192x192" href="icons/mbps-deal-packet-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="icons/mbps-deal-packet-512.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/mbps-deal-packet-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/mbps-deal-packet-512.png">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+    <!-- Header -->
+    <header class="flex items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">MBPS Deal Packet</h1>
+        <p class="text-sm text-slate-400">Quick buyer-facing snapshot for your wholesale / creative deals.</p>
+      </div>
+      <span class="inline-flex items-center rounded-full border border-emerald-500/60 px-3 py-1 text-xs font-semibold text-emerald-300 bg-emerald-500/10">
+        Beta · v1
+      </span>
+    </header>
+
+    <!-- Deal Summary -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center gap-3">
+        <div class="flex-1">
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Property Address</label>
+          <input id="deal-address" type="text" placeholder="123 Main St, City, ST ZIP"
+                 class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 flex-none md:w-80">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">ARV</label>
+            <input id="deal-arv" type="number" inputmode="decimal" placeholder="250000"
+                   class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Asking</label>
+            <input id="deal-asking" type="number" inputmode="decimal" placeholder="175000"
+                   class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Repairs (Est)</label>
+            <input id="deal-repairs" type="number" inputmode="decimal" placeholder="50000"
+                   class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Assignment Fee</label>
+            <input id="deal-assignment" type="number" inputmode="decimal" placeholder="17500"
+                   class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Status</label>
+          <select id="deal-status"
+                  class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+            <option value="Under Contract">Under Contract</option>
+            <option value="Seeking Buyer">Seeking Buyer</option>
+            <option value="Soft Hold">Soft Hold</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Close Date</label>
+          <input id="deal-close-date" type="date"
+                 class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Sq Ft</label>
+          <input id="deal-sqft" type="number" inputmode="decimal" placeholder="1600"
+                 class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Beds / Baths</label>
+          <input id="deal-bedsbaths" type="text" placeholder="3 / 2"
+                 class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+        </div>
+      </div>
+    </section>
+
+    <!-- Photos -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-4">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-sm font-semibold tracking-wide text-slate-200 uppercase">Photos</h2>
+        <button id="photo-trigger"
+                class="text-xs px-3 py-1 rounded-full border border-slate-700 bg-slate-900/80 hover:bg-slate-800/90">
+          Browse Files
+        </button>
+      </div>
+
+      <div id="photo-dropzone"
+           class="border-2 border-dashed border-slate-700 rounded-2xl px-4 py-8 text-center cursor-pointer bg-slate-950/60 hover:border-emerald-500/70 hover:bg-slate-900/60 transition">
+        <input id="photo-input" type="file" accept="image/*" multiple class="hidden" />
+        <p class="text-sm text-slate-300 font-medium">Drag &amp; drop photos here</p>
+        <p class="text-xs text-slate-500 mt-1">or click to upload from your device</p>
+      </div>
+
+      <div id="photo-gallery" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <!-- Thumbnails injected here -->
+      </div>
+    </section>
+
+    <!-- Comps -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-4">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-sm font-semibold tracking-wide text-slate-200 uppercase">Comps</h2>
+        <div class="flex items-center gap-2">
+          <div class="text-xs text-slate-400">
+            Avg $/sqft:
+            <span id="avg-pps" class="font-semibold text-emerald-300">–</span>
+          </div>
+          <button id="add-comp-row"
+                  class="text-xs px-3 py-1 rounded-full border border-slate-700 bg-slate-900/80 hover:bg-slate-800/90">
+            + Add Comp
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs border-separate border-spacing-y-1">
+          <thead class="text-[0.68rem] uppercase text-slate-400">
+            <tr>
+              <th class="text-left px-2 py-1">Address</th>
+              <th class="text-left px-2 py-1">Dist (mi)</th>
+              <th class="text-left px-2 py-1">Beds / Baths</th>
+              <th class="text-left px-2 py-1">Sq Ft</th>
+              <th class="text-left px-2 py-1">Sold Price</th>
+              <th class="text-left px-2 py-1">DOM</th>
+              <th class="text-left px-2 py-1">Notes</th>
+              <th class="px-2 py-1"></th>
+            </tr>
+          </thead>
+          <tbody id="comp-body">
+            <!-- Rows injected -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Notes / Pitch -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-sm font-semibold tracking-wide text-slate-200 uppercase">Notes / Investor Pitch</h2>
+      </div>
+      <textarea id="deal-notes" rows="4"
+                placeholder="Why this is a deal, exit strategies (Flip / BRRRR / Rental), anything a serious buyer needs to know..."
+                class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70"></textarea>
+    </section>
+
+    <!-- Summary Output -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-sm font-semibold tracking-wide text-slate-200 uppercase">Generated Summary</h2>
+        <div class="flex gap-2">
+          <button id="generate-summary"
+                  class="text-xs px-3 py-1 rounded-full bg-emerald-500 text-slate-950 font-semibold hover:bg-emerald-400">
+            Generate
+          </button>
+          <button id="copy-summary"
+                  class="text-xs px-3 py-1 rounded-full border border-slate-700 bg-slate-900/80 hover:bg-slate-800/90">
+            Copy
+          </button>
+        </div>
+      </div>
+      <textarea id="summary-output" rows="6"
+                class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-xs font-mono leading-snug focus:outline-none focus:ring-2 focus:ring-emerald-500/70"
+                placeholder="Click Generate to build a buyer-ready summary you can paste into email or text."></textarea>
+    </section>
+  </div>
+
+  <script>
+    // ---- Photo handling ----
+    const dropzone = document.getElementById('photo-dropzone');
+    const photoInput = document.getElementById('photo-input');
+    const photoTrigger = document.getElementById('photo-trigger');
+    const gallery = document.getElementById('photo-gallery');
+
+    photoTrigger.addEventListener('click', () => photoInput.click());
+    dropzone.addEventListener('click', () => photoInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('border-emerald-500', 'bg-slate-900/80');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('border-emerald-500', 'bg-slate-900/80');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-emerald-500', 'bg-slate-900/80');
+      const files = e.dataTransfer.files;
+      handleFiles(files);
+    });
+
+    photoInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+      // allow re-uploading same files
+      e.target.value = '';
+    });
+
+    function handleFiles(files) {
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const card = document.createElement('div');
+          card.className = 'bg-slate-950/80 border border-slate-800 rounded-2xl overflow-hidden flex flex-col gap-2';
+
+          card.innerHTML = `
+            <div class="aspect-video overflow-hidden">
+              <img src="${event.target.result}" alt="Property photo"
+                   class="w-full h-full object-cover">
+            </div>
+            <div class="p-2 border-t border-slate-800">
+              <textarea
+                class="w-full text-[0.7rem] bg-transparent border-0 focus:ring-0 text-slate-200 placeholder:text-slate-500 resize-none"
+                rows="2"
+                placeholder="Caption / notes (e.g., 'Kitchen – needs full gut')"></textarea>
+            </div>
+          `;
+          gallery.appendChild(card);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // ---- Comps ----
+    const compBody = document.getElementById('comp-body');
+    const addCompRowBtn = document.getElementById('add-comp-row');
+    const avgPpsSpan = document.getElementById('avg-pps');
+
+    addCompRowBtn.addEventListener('click', addCompRow);
+
+    function addCompRow(prefill = {}) {
+      const row = document.createElement('tr');
+      row.className = 'bg-slate-950/80';
+
+      row.innerHTML = `
+        <td class="px-2 py-1">
+          <input type="text" class="w-full bg-transparent border border-slate-800 rounded-lg px-1.5 py-1 text-[0.7rem]"
+                 placeholder="123 Comp St" value="${prefill.address || ''}">
+        </td>
+        <td class="px-2 py-1">
+          <input type="number" step="0.01" class="w-full bg-transparent border border-slate-800 rounded-lg px-1.5 py-1 text-[0.7rem]"
+                 placeholder="0.4" value="${prefill.distance || ''}">
+        </td>
+        <td class="px-2 py-1">
+          <input type="text" class="w-full bg-transparent border border-slate-800 rounded-lg px-1.5 py-1 text-[0.7rem]"
+                 placeholder="3 / 2" value="${prefill.bedsbaths || ''}">
+        </td>
+        <td class="px-2 py-1">
+          <input type="number" class="comp-sqft w-full bg-transparent border border-slate-800 rounded-lg px-1.5 py-1 text-[0.7rem]"
+                 placeholder="1500" value="${prefill.sqft || ''}">
+        </td>
+        <td class="px-2 py-1">
+          <input type="number" class="comp-price w-full bg-transparent border border-slate-800 rounded-lg px-1.5 py-1 text-[0.7rem]"
+                 placeholder="275000" value="${prefill.price || ''}">
+        </td>
+        <td class="px-2 py-1">
+          <input type="number" class="w-full bg-transparent border border-slate-800 rounded-lg px-1.5 py-1 text-[0.7rem]"
+                 placeholder="7" value="${prefill.dom || ''}">
+        </td>
+        <td class="px-2 py-1">
+          <input type="text" class="w-full bg-transparent border border-slate-800 rounded-lg px-1.5 py-1 text-[0.7rem]"
+                 placeholder="Renovated / Dated / etc." value="${prefill.notes || ''}">
+        </td>
+        <td class="px-2 py-1 text-right">
+          <button class="text-[0.65rem] text-red-400 hover:text-red-300">Remove</button>
+        </td>
+      `;
+
+      // remove handler
+      row.querySelector('button').addEventListener('click', () => {
+        row.remove();
+        recomputeAvgPps();
+      });
+
+      // recalc when sqft or price changes
+      row.querySelector('.comp-sqft').addEventListener('input', recomputeAvgPps);
+      row.querySelector('.comp-price').addEventListener('input', recomputeAvgPps);
+
+      compBody.appendChild(row);
+      recomputeAvgPps();
+    }
+
+    function recomputeAvgPps() {
+      const priceInputs = compBody.querySelectorAll('.comp-price');
+      const sqftInputs = compBody.querySelectorAll('.comp-sqft');
+
+      let totalPrice = 0;
+      let totalSqft = 0;
+
+      for (let i = 0; i < priceInputs.length; i++) {
+        const price = parseFloat(priceInputs[i].value || '0');
+        const sqft = parseFloat(sqftInputs[i].value || '0');
+        if (price > 0 && sqft > 0) {
+          totalPrice += price;
+          totalSqft += sqft;
+        }
+      }
+
+      if (totalPrice > 0 && totalSqft > 0) {
+        const avg = totalPrice / totalSqft;
+        avgPpsSpan.textContent = '$' + avg.toFixed(0) + '/sqft';
+      } else {
+        avgPpsSpan.textContent = '–';
+      }
+    }
+
+    // start with 3 empty rows
+    addCompRow();
+    addCompRow();
+    addCompRow();
+
+    // ---- Summary generation ----
+    const generateSummaryBtn = document.getElementById('generate-summary');
+    const copySummaryBtn = document.getElementById('copy-summary');
+    const summaryOutput = document.getElementById('summary-output');
+
+    generateSummaryBtn.addEventListener('click', () => {
+      const address = document.getElementById('deal-address').value || 'TBD';
+      const arv = document.getElementById('deal-arv').value;
+      const asking = document.getElementById('deal-asking').value;
+      const repairs = document.getElementById('deal-repairs').value;
+      const assignment = document.getElementById('deal-assignment').value;
+      const status = document.getElementById('deal-status').value;
+      const closeDate = document.getElementById('deal-close-date').value;
+      const sqft = document.getElementById('deal-sqft').value;
+      const bedsbaths = document.getElementById('deal-bedsbaths').value;
+      const notes = document.getElementById('deal-notes').value;
+
+      // compute spread metrics if we have data
+      const arvNum = parseFloat(arv || '0');
+      const askingNum = parseFloat(asking || '0');
+      const repairsNum = parseFloat(repairs || '0');
+      const assignmentNum = parseFloat(assignment || '0');
+
+      let equityLine = '';
+      if (arvNum && askingNum && repairsNum) {
+        const allIn = askingNum + repairsNum + (assignmentNum || 0);
+        const spread = arvNum - allIn;
+        equityLine = `Buyer all-in (price + repairs + assignment): ~$${allIn.toLocaleString()}\nEstimated equity at ARV: ~$${spread.toLocaleString()}`;
+      }
+
+      // build comps summary
+      const rows = compBody.querySelectorAll('tr');
+      const compLines = [];
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        if (!inputs.length) return;
+        const [addr, dist, bb, csqft, price, dom, cnotes] = inputs;
+        if (addr.value || price.value) {
+          compLines.push(
+            `- ${addr.value || 'Comp'} | ${bb.value || '–'} | ${csqft.value || '–'} sqft | $${(price.value || '0')} | DOM: ${dom.value || '–'} | ${cnotes.value || ''}`
+          );
+        }
+      });
+
+      const pps = avgPpsSpan.textContent || '–';
+
+      const summary = [
+        `📍 **Property**`,
+        `${address}`,
+        bedsbaths || sqft ? `${bedsbaths ? bedsbaths + ' | ' : ''}${sqft ? sqft + ' sqft' : ''}` : '',
+        '',
+        `💰 **Numbers**`,
+        arv ? `- ARV: $${Number(arv).toLocaleString()}` : '',
+        asking ? `- Asking: $${Number(asking).toLocaleString()}` : '',
+        repairs ? `- Estimated Repairs: $${Number(repairs).toLocaleString()}` : '',
+        assignment ? `- Assignment: $${Number(assignment).toLocaleString()}` : '',
+        equityLine ? `- ${equityLine}` : '',
+        '',
+        `📅 **Status**`,
+        `- ${status}${closeDate ? ` | Close: ${closeDate}` : ''}`,
+        '',
+        `📊 **Comps (manual)**`,
+        `Avg price per sqft (set): ${pps}`,
+        compLines.length ? compLines.join('\n') : '- Comps not entered yet.',
+        '',
+        `📝 **Notes / Pitch**`,
+        notes || '- (Add your buyer-facing pitch here.)',
+        '',
+        `🔎 Photos`,
+        `- Photos attached separately (see link, email, or text).`
+      ].filter(Boolean).join('\n');
+
+      summaryOutput.value = summary;
+    });
+
+    copySummaryBtn.addEventListener('click', async () => {
+      if (!summaryOutput.value.trim()) {
+        generateSummaryBtn.click();
+      }
+      try {
+        await navigator.clipboard.writeText(summaryOutput.value);
+        copySummaryBtn.textContent = 'Copied!';
+        setTimeout(() => { copySummaryBtn.textContent = 'Copy'; }, 1200);
+      } catch (err) {
+        alert('Copy failed, please select and copy manually.');
+      }
+    });
+  </script>
+
+  <!-- Service Worker registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('./sw.js')
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
