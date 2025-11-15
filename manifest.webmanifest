@@ -1,0 +1,23 @@
+{
+  "name": "MBPS Deal Packet",
+  "short_name": "Deal Packet",
+  "description": "Buyer-ready deal snapshot for MBPS: photos, comps, and pitch in one place.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "icons/mbps-deal-packet-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/mbps-deal-packet-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
