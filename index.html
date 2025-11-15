@@ -17,6 +17,10 @@
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jsPDF + autoTable for professional PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
   <div class="max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -39,7 +43,7 @@
           <input id="deal-address" type="text" placeholder="123 Main St, City, ST ZIP"
                  class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 flex-none md:w-80">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 flex-none md:w-80">
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">ARV</label>
             <input id="deal-arv" type="number" inputmode="decimal" placeholder="250000"
@@ -53,11 +57,6 @@
           <div>
             <label class="block text-xs font-semibold text-slate-400 mb-1">Repairs (Est)</label>
             <input id="deal-repairs" type="number" inputmode="decimal" placeholder="50000"
-                   class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Assignment Fee</label>
-            <input id="deal-assignment" type="number" inputmode="decimal" placeholder="17500"
                    class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
           </div>
         </div>
@@ -172,6 +171,10 @@
           <button id="copy-summary"
                   class="text-xs px-3 py-1 rounded-full border border-slate-700 bg-slate-900/80 hover:bg-slate-800/90">
             Copy
+          </button>
+          <button id="generate-pdf"
+                  class="text-xs px-3 py-1 rounded-full border border-emerald-500 bg-slate-900/80 text-emerald-300 hover:bg-slate-800/90">
+            PDF
           </button>
         </div>
       </div>
@@ -331,6 +334,7 @@
     // ---- Summary generation ----
     const generateSummaryBtn = document.getElementById('generate-summary');
     const copySummaryBtn = document.getElementById('copy-summary');
+    const pdfBtn = document.getElementById('generate-pdf');
     const summaryOutput = document.getElementById('summary-output');
 
     generateSummaryBtn.addEventListener('click', () => {
@@ -338,7 +342,6 @@
       const arv = document.getElementById('deal-arv').value;
       const asking = document.getElementById('deal-asking').value;
       const repairs = document.getElementById('deal-repairs').value;
-      const assignment = document.getElementById('deal-assignment').value;
       const status = document.getElementById('deal-status').value;
       const closeDate = document.getElementById('deal-close-date').value;
       const sqft = document.getElementById('deal-sqft').value;
@@ -349,13 +352,12 @@
       const arvNum = parseFloat(arv || '0');
       const askingNum = parseFloat(asking || '0');
       const repairsNum = parseFloat(repairs || '0');
-      const assignmentNum = parseFloat(assignment || '0');
 
       let equityLine = '';
       if (arvNum && askingNum && repairsNum) {
-        const allIn = askingNum + repairsNum + (assignmentNum || 0);
+        const allIn = askingNum + repairsNum;
         const spread = arvNum - allIn;
-        equityLine = `Buyer all-in (price + repairs + assignment): ~$${allIn.toLocaleString()}\nEstimated equity at ARV: ~$${spread.toLocaleString()}`;
+        equityLine = `Buyer all-in (price + repairs): ~$${allIn.toLocaleString()}\nEstimated equity at ARV: ~$${spread.toLocaleString()}`;
       }
 
       // build comps summary
@@ -383,7 +385,6 @@
         arv ? `- ARV: $${Number(arv).toLocaleString()}` : '',
         asking ? `- Asking: $${Number(asking).toLocaleString()}` : '',
         repairs ? `- Estimated Repairs: $${Number(repairs).toLocaleString()}` : '',
-        assignment ? `- Assignment: $${Number(assignment).toLocaleString()}` : '',
         equityLine ? `- ${equityLine}` : '',
         '',
         `📅 **Status**`,
@@ -414,6 +415,136 @@
       } catch (err) {
         alert('Copy failed, please select and copy manually.');
       }
+    });
+
+    // ---- PDF generation ----
+    pdfBtn.addEventListener('click', () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'pt', 'letter');
+      let y = 40;
+
+      const address = document.getElementById('deal-address').value || 'TBD';
+      const arv = document.getElementById('deal-arv').value;
+      const asking = document.getElementById('deal-asking').value;
+      const repairs = document.getElementById('deal-repairs').value;
+      const status = document.getElementById('deal-status').value;
+      const closeDate = document.getElementById('deal-close-date').value;
+      const sqft = document.getElementById('deal-sqft').value;
+      const bedsbaths = document.getElementById('deal-bedsbaths').value;
+      const notes = document.getElementById('deal-notes').value;
+
+      const arvNum = parseFloat(arv || '0');
+      const askingNum = parseFloat(asking || '0');
+      const repairsNum = parseFloat(repairs || '0');
+
+      let allIn = null;
+      let spread = null;
+      if (arvNum && askingNum && repairsNum) {
+        allIn = askingNum + repairsNum;
+        spread = arvNum - allIn;
+      }
+
+      // Header
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text('MBPS Deal Packet', 40, y);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      y += 18;
+      doc.text(`Property: ${address}`, 40, y);
+      y += 14;
+      if (bedsbaths || sqft) {
+        doc.text(
+          `${bedsbaths ? bedsbaths + ' | ' : ''}${sqft ? sqft + ' sqft' : ''}`,
+          40,
+          y
+        );
+        y += 14;
+      }
+      doc.text(`Status: ${status}${closeDate ? ' | Close: ' + closeDate : ''}`, 40, y);
+      y += 24;
+
+      // Numbers block
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Key Numbers', 40, y);
+      y += 14;
+      doc.setFont('helvetica', 'normal');
+      if (arv) {
+        doc.text(`ARV: $${Number(arv).toLocaleString()}`, 40, y);
+        y += 14;
+      }
+      if (asking) {
+        doc.text(`Asking: $${Number(asking).toLocaleString()}`, 40, y);
+        y += 14;
+      }
+      if (repairs) {
+        doc.text(`Estimated Repairs: $${Number(repairs).toLocaleString()}`, 40, y);
+        y += 14;
+      }
+      if (allIn !== null && spread !== null) {
+        doc.text(`Buyer all-in (price + repairs): ~$${allIn.toLocaleString()}`, 40, y);
+        y += 14;
+        doc.text(`Estimated equity at ARV: ~$${spread.toLocaleString()}`, 40, y);
+        y += 18;
+      } else {
+        y += 4;
+      }
+
+      // Comps table
+      const rows = [];
+      compBody.querySelectorAll('tr').forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        if (!inputs.length) return;
+        const [addr, dist, bb, csqft, price, dom, cnotes] = inputs;
+        if (!addr.value && !price.value) return;
+        rows.push([
+          addr.value || '',
+          dist.value || '',
+          bb.value || '',
+          csqft.value || '',
+          price.value || '',
+          dom.value || '',
+          cnotes.value || ''
+        ]);
+      });
+
+      if (rows.length) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Sales Comparables', 40, y);
+        y += 10;
+
+        doc.autoTable({
+          startY: y + 4,
+          head: [['Address', 'Dist (mi)', 'Beds/Baths', 'Sq Ft', 'Sold Price', 'DOM', 'Notes']],
+          body: rows,
+          styles: { fontSize: 8, cellPadding: 3 },
+          headStyles: { fillColor: [16, 185, 129], textColor: 255 },
+          margin: { left: 40, right: 40 }
+        });
+        y = doc.lastAutoTable.finalY + 20;
+      }
+
+      // Notes / Pitch
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Notes / Investor Pitch', 40, y);
+      y += 14;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      const notesText = notes || '(Add your buyer-facing pitch here: condition, scope of work, exit strategies, area highlights, etc.)';
+      const splitNotes = doc.splitTextToSize(notesText, 515);
+      doc.text(splitNotes, 40, y);
+      y += splitNotes.length * 12 + 10;
+
+      // Footer hint about photos
+      doc.setFontSize(9);
+      doc.setTextColor(120);
+      doc.text('Photos are provided separately (see email/text attachments or shared folder link).', 40, 780);
+
+      const safeAddress = address.replace(/[^a-z0-9]/gi, '_').slice(0, 40) || 'mbps_deal_packet';
+      doc.save(`${safeAddress}.pdf`);
     });
   </script>
 
