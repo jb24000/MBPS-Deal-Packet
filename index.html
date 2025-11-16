@@ -418,13 +418,14 @@
       buyerProfileDescEl.textContent = `${profile.name}: ${profile.desc}`;
     });
 
-    // ---- Photo handling (with captions & remove) ----
+    // ---- Photo handling (with captions, rotate, remove) ----
     const dropzone = document.getElementById('photo-dropzone');
     const photoInput = document.getElementById('photo-input');
     const photoTrigger = document.getElementById('photo-trigger');
     const gallery = document.getElementById('photo-gallery');
 
-    let photos = []; // {id, dataUrl, caption}
+    // photos: {id, dataUrl, caption, rotation}
+    let photos = [];
 
     photoTrigger.addEventListener('click', () => photoInput.click());
     dropzone.addEventListener('click', () => photoInput.click());
@@ -459,23 +460,30 @@
           const id = crypto.randomUUID();
           const dataUrl = event.target.result;
 
-          photos.push({
+          const photoObj = {
             id,
             dataUrl,
-            caption: ''
-          });
+            caption: '',
+            rotation: 0 // degrees, multiples of 90
+          };
+          photos.push(photoObj);
 
           const card = document.createElement('div');
           card.className = 'bg-slate-950/80 border border-slate-800 rounded-2xl overflow-hidden flex flex-col gap-2 relative';
           card.dataset.photoId = id;
 
           card.innerHTML = `
-            <button class="absolute top-1 right-1 text-[0.65rem] px-1.5 py-0.5 rounded-full bg-slate-900/80 border border-red-500/60 text-red-300 hover:bg-red-500/10 remove-photo">
-              ✕
-            </button>
+            <div class="absolute top-1 right-1 flex gap-1">
+              <button class="rotate-photo text-[0.65rem] px-1.5 py-0.5 rounded-full bg-slate-900/80 border border-slate-600 text-slate-200 hover:bg-slate-800">
+                ⟳
+              </button>
+              <button class="remove-photo text-[0.65rem] px-1.5 py-0.5 rounded-full bg-slate-900/80 border border-red-500/60 text-red-300 hover:bg-red-500/10">
+                ✕
+              </button>
+            </div>
             <div class="aspect-video overflow-hidden">
               <img src="${dataUrl}" alt="Property photo"
-                   class="w-full h-full object-cover">
+                   class="photo-img w-full h-full object-cover transition-transform duration-150">
             </div>
             <div class="p-2 border-t border-slate-800">
               <textarea
@@ -485,13 +493,31 @@
             </div>
           `;
 
+          const imgEl = card.querySelector('.photo-img');
           const captionEl = card.querySelector('.photo-caption');
+          const rotateBtn = card.querySelector('.rotate-photo');
+          const removeBtn = card.querySelector('.remove-photo');
+
+          function applyRotation() {
+            const p = photos.find(p => p.id === id);
+            const deg = p ? p.rotation : 0;
+            imgEl.style.transform = `rotate(${deg}deg)`;
+            imgEl.style.transformOrigin = 'center center';
+          }
+          applyRotation();
+
           captionEl.addEventListener('input', () => {
             const p = photos.find(p => p.id === id);
             if (p) p.caption = captionEl.value;
           });
 
-          const removeBtn = card.querySelector('.remove-photo');
+          rotateBtn.addEventListener('click', () => {
+            const p = photos.find(p => p.id === id);
+            if (!p) return;
+            p.rotation = ((p.rotation || 0) + 90) % 360; // rotate clockwise by 90°
+            applyRotation();
+          });
+
           removeBtn.addEventListener('click', () => {
             photos = photos.filter(p => p.id !== id);
             card.remove();
@@ -696,7 +722,7 @@
       }
     });
 
-    // ---- PDF generation with branding + exit strategies + buyer profile + photos ----
+    // ---- PDF generation with branding + exit strategies + buyer profile + multi-photo grid ----
     pdfBtn.addEventListener('click', () => {
       const doc = new jsPDF('p', 'pt', 'letter');
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -912,7 +938,7 @@
       doc.text(splitNotes, leftMargin, y);
       y += splitNotes.length * 12 + 16;
 
-      // Photos with captions
+      // Photos with captions — multiple per page, honoring rotation
       if (photos.length) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
@@ -923,40 +949,83 @@
         doc.text('Photos', leftMargin, y);
         y += 16;
 
-        photos.forEach(photo => {
-          const maxWidth = pageWidth - leftMargin - rightMargin;
-          const imgWidth = maxWidth;
-          const imgHeight = maxWidth * 0.6; // landscape-ish
+        const maxWidth = pageWidth - leftMargin - rightMargin;
+        const photosPerRow = 2;
+        const gapX = 16;
+        const gapY = 24;
+        const photoWidth = (maxWidth - gapX * (photosPerRow - 1)) / photosPerRow;
+        const photoHeight = photoWidth * 0.6;
 
-          if (y + imgHeight + 40 > pageHeight - bottomMargin) {
+        let colIndex = 0;
+        let rowBottomY = y + photoHeight + 10;
+
+        photos.forEach((photo, idx) => {
+          // If starting a new row and not enough space, new page
+          if (colIndex === 0 && y + photoHeight + 40 > pageHeight - bottomMargin) {
             doc.addPage();
             y = 60;
+            rowBottomY = y + photoHeight + 10;
           }
 
+          const x = leftMargin + colIndex * (photoWidth + gapX);
+
+          // Add image with rotation
           try {
-            doc.addImage(photo.dataUrl, 'JPEG', leftMargin, y, imgWidth, imgHeight);
+            doc.addImage(
+              photo.dataUrl,
+              'JPEG',
+              x,
+              y,
+              photoWidth,
+              photoHeight,
+              undefined,
+              'FAST',
+              photo.rotation || 0
+            );
           } catch (e) {
             try {
-              doc.addImage(photo.dataUrl, 'PNG', leftMargin, y, imgWidth, imgHeight);
+              doc.addImage(
+                photo.dataUrl,
+                'PNG',
+                x,
+                y,
+                photoWidth,
+                photoHeight,
+                undefined,
+                'FAST',
+                photo.rotation || 0
+              );
             } catch (err) {
               console.error('Error adding photo to PDF', err);
             }
           }
-          y += imgHeight + 10;
 
+          let captionBottom = y + photoHeight + 10;
           if (photo.caption && photo.caption.trim()) {
             doc.setFont('helvetica', 'italic');
             doc.setFontSize(9);
-            const capLines = doc.splitTextToSize(photo.caption.trim(), maxWidth);
-            doc.text(capLines, leftMargin, y);
-            y += capLines.length * 11 + 10;
-          } else {
-            y += 4;
+            const capLines = doc.splitTextToSize(photo.caption.trim(), photoWidth);
+            doc.text(capLines, x, y + photoHeight + 10);
+            captionBottom = y + photoHeight + 10 + capLines.length * 11 + 4;
           }
 
+          rowBottomY = Math.max(rowBottomY, captionBottom);
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(10);
+
+          colIndex++;
+          if (colIndex === photosPerRow) {
+            // Move to next row
+            colIndex = 0;
+            y = rowBottomY + gapY;
+            rowBottomY = y + photoHeight + 10;
+          }
         });
+
+        // If last row wasn't closed, bump y to below photos (not strictly needed, but clean)
+        if (colIndex !== 0) {
+          y = rowBottomY + gapY;
+        }
       }
 
       // Footer (no internal notes, no seller info)
