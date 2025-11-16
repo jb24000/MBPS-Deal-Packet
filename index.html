@@ -25,20 +25,50 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen">
   <div class="max-w-5xl mx-auto px-4 py-6 space-y-6">
     <!-- Header -->
-    <header class="flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <!-- Page logo: make sure images/mbps-logo.png exists -->
-        <img src="images/mbps-logo.png" alt="MB Property Solutions logo"
-             class="h-10 w-auto rounded-xl bg-slate-900/70 p-1 border border-slate-800 shadow-md">
+    <header class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">MBPS Deal Packet</h1>
+        <p class="text-sm text-slate-400">
+          Quick buyer-facing snapshot for your wholesale / creative deals.
+        </p>
+      </div>
+      <div class="flex flex-col items-start md:items-end gap-1">
+        <span class="inline-flex items-center rounded-full border border-emerald-500/60 px-3 py-1 text-xs font-semibold text-emerald-300 bg-emerald-500/10">
+          Beta · v1
+        </span>
+        <p class="text-xs text-slate-400">
+          MB Property Solutions · 984-710-6941 · mbpropertysolutionz@gmail.com
+        </p>
+        <p class="text-[0.65rem] text-slate-500">
+          No seller info is ever included in this packet.
+        </p>
+      </div>
+    </header>
+
+    <!-- Logo upload section (for this packet / this device only) -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-3 md:p-4 space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-xs font-semibold tracking-wide text-slate-200 uppercase">
+          Packet Branding (Optional Logo)
+        </h2>
+        <span class="text-[0.65rem] text-slate-400">
+          Logo is stored only in this browser and used in the PDF header.
+        </span>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <div>
-          <h1 class="text-2xl font-bold tracking-tight">MBPS Deal Packet</h1>
-          <p class="text-sm text-slate-400">Quick buyer-facing snapshot for your wholesale / creative deals.</p>
+          <button id="logo-upload-trigger"
+                  class="text-xs px-3 py-1 rounded-full border border-slate-700 bg-slate-950/80 hover:bg-slate-800/90">
+            Upload Logo
+          </button>
+          <input id="logo-input" type="file" accept="image/*" class="hidden" />
+        </div>
+        <div id="logo-preview"
+             class="flex items-center justify-center rounded-xl border border-dashed border-slate-700 bg-slate-950/80 px-3 py-2 min-h-[48px] w-full sm:w-48 text-[0.7rem] text-slate-500">
+          No logo selected
         </div>
       </div>
-      <span class="inline-flex items-center rounded-full border border-emerald-500/60 px-3 py-1 text-xs font-semibold text-emerald-300 bg-emerald-500/10">
-        Beta · v1
-      </span>
-    </header>
+    </section>
 
     <!-- Deal Summary -->
     <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-4">
@@ -95,6 +125,74 @@
       </div>
     </section>
 
+    <!-- Deal Positioning: Exit Strategy + Buyer Profile -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-4">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-sm font-semibold tracking-wide text-slate-200 uppercase">Deal Positioning</h2>
+        <span class="text-[0.7rem] text-slate-400">
+          Exit strategy &amp; ideal buyer type for this deal.
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Exit Strategies -->
+        <fieldset class="space-y-2">
+          <legend class="text-xs font-semibold text-slate-400 mb-1">Exit Strategy (you can pick multiple)</legend>
+          <div class="grid grid-cols-2 gap-2 text-xs text-slate-200">
+            <label class="inline-flex items-center gap-2">
+              <input type="checkbox" name="exit-strategy" value="Fix & Flip"
+                     class="rounded bg-slate-900 border-slate-600 text-emerald-500 focus:ring-emerald-500/70">
+              <span>Fix &amp; Flip</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input type="checkbox" name="exit-strategy" value="BRRRR"
+                     class="rounded bg-slate-900 border-slate-600 text-emerald-500 focus:ring-emerald-500/70">
+              <span>BRRRR</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input type="checkbox" name="exit-strategy" value="Long-Term Rental"
+                     class="rounded bg-slate-900 border-slate-600 text-emerald-500 focus:ring-emerald-500/70">
+              <span>Long-Term Rental</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input type="checkbox" name="exit-strategy" value="Mid-Term / Furnished"
+                     class="rounded bg-slate-900 border-slate-600 text-emerald-500 focus:ring-emerald-500/70">
+              <span>Mid-Term / Furnished</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input type="checkbox" name="exit-strategy" value="Wholetail"
+                     class="rounded bg-slate-900 border-slate-600 text-emerald-500 focus:ring-emerald-500/70">
+              <span>Wholetail</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input type="checkbox" name="exit-strategy" value="Creative Finance"
+                     class="rounded bg-slate-900 border-slate-600 text-emerald-500 focus:ring-emerald-500/70">
+              <span>Creative Finance</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Buyer Profile -->
+        <div class="space-y-2">
+          <label class="block text-xs font-semibold text-slate-400 mb-1">
+            Target Buyer Profile
+          </label>
+          <select id="buyer-profile"
+                  class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+            <option value="">Select profile</option>
+            <option value="cash_flip">Cash Flipper – 70% ARV minus repairs</option>
+            <option value="brrrr_landlord">BRRRR Landlord – cashflow + equity</option>
+            <option value="turnkey_rental">Turnkey / Light Rehab Landlord</option>
+            <option value="midterm_furnished">Mid-Term / Furnished Operator</option>
+            <option value="creative_buyer">Creative Finance Buyer</option>
+          </select>
+          <p id="buyer-profile-desc" class="text-[0.7rem] text-slate-400 min-h-[2.2rem]">
+            Pick a profile to show buyers who this is perfect for.
+          </p>
+        </div>
+      </div>
+    </section>
+
     <!-- Photos -->
     <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-4">
       <div class="flex items-center justify-between gap-2">
@@ -109,7 +207,9 @@
            class="border-2 border-dashed border-slate-700 rounded-2xl px-4 py-8 text-center cursor-pointer bg-slate-950/60 hover:border-emerald-500/70 hover:bg-slate-900/60 transition">
         <input id="photo-input" type="file" accept="image/*" multiple class="hidden" />
         <p class="text-sm text-slate-300 font-medium">Drag &amp; drop photos here</p>
-        <p class="text-xs text-slate-500 mt-1">or click to upload from your device</p>
+        <p class="text-xs text-slate-500 mt-1">
+          or click to upload from your device. Photos are not stored in templates—attach when sending.
+        </p>
       </div>
 
       <div id="photo-gallery" class="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -154,14 +254,78 @@
       </div>
     </section>
 
-    <!-- Notes / Pitch -->
+    <!-- Buyer-Facing Notes / Pitch -->
     <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-3">
       <div class="flex items-center justify-between gap-2">
         <h2 class="text-sm font-semibold tracking-wide text-slate-200 uppercase">Notes / Investor Pitch</h2>
       </div>
       <textarea id="deal-notes" rows="4"
-                placeholder="Why this is a deal, exit strategies (Flip / BRRRR / Rental), anything a serious buyer needs to know..."
+                placeholder="Why this is a deal, exit strategies, area highlights, anything a serious buyer needs to know..."
                 class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70"></textarea>
+    </section>
+
+    <!-- Internal Notes (never shown to buyer / PDF) -->
+    <section class="bg-slate-900/60 border border-dashed border-slate-800 rounded-2xl p-4 md:p-5 space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-sm font-semibold tracking-wide text-slate-200 uppercase">
+          Internal Notes (Not in Buyer Packet)
+        </h2>
+        <span class="text-[0.7rem] text-slate-400">
+          For seller conversations, VA notes, negotiation leverage, etc. Not exported.
+        </span>
+      </div>
+      <textarea id="internal-notes" rows="4"
+                placeholder="Seller situation, motivation, follow-up plan, do-not-share details..."
+                class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70"></textarea>
+    </section>
+
+    <!-- Saved Packets / Templates -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-sm font-semibold tracking-wide text-slate-200 uppercase">
+          Saved Packets / Templates (Local Only)
+        </h2>
+        <span class="text-[0.7rem] text-slate-400">
+          Saved in this browser only. Photos are not stored.
+        </span>
+      </div>
+
+      <div class="flex flex-col md:flex-row gap-3 items-stretch">
+        <div class="flex-1 space-y-2">
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Template Name</label>
+          <input id="packet-name" type="text"
+                 placeholder="e.g., Windsor Flip – Hedge Fund Version"
+                 class="w-full rounded-xl bg-slate-950/80 border border-slate-700 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/70">
+          <div class="flex flex-wrap gap-2 mt-2">
+            <button id="save-packet"
+                    class="text-xs px-3 py-1 rounded-full bg-emerald-500 text-slate-950 font-semibold hover:bg-emerald-400">
+              Save as New
+            </button>
+            <button id="update-packet"
+                    class="text-xs px-3 py-1 rounded-full border border-slate-700 bg-slate-900/80 hover:bg-slate-800/90">
+              Update Selected
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-1 space-y-2">
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Saved Packets</label>
+          <div id="packet-list"
+               class="max-h-40 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950/80 text-xs divide-y divide-slate-800">
+            <!-- Saved items injected here -->
+          </div>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <button id="load-packet"
+                    class="text-xs px-3 py-1 rounded-full border border-emerald-500 text-emerald-300 bg-slate-900/80 hover:bg-slate-800/90">
+              Load Selected
+            </button>
+            <button id="delete-packet"
+                    class="text-xs px-3 py-1 rounded-full border border-red-500 text-red-300 bg-slate-900/80 hover:bg-red-500/10">
+              Delete Selected
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Summary Output -->
@@ -190,35 +354,77 @@
   </div>
 
   <script>
-    // ---- Logo for PDF (load once) ----
-    let mbpsLogoDataUrl = null;
+    const { jsPDF } = window.jspdf;
 
-    function loadMbpsLogo() {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = function () {
-        try {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          mbpsLogoDataUrl = canvas.toDataURL('image/png');
-        } catch (e) {
-          console.error('Logo toDataURL failed', e);
-        }
+    // ---- Buyer profiles (buy-box) ----
+    const BUY_BOX_PROFILES = {
+      cash_flip: {
+        name: 'Cash Flipper',
+        desc: 'Typically wants ~70% of ARV minus repairs, prefers clear scope, fast close, solid equity spread.'
+      },
+      brrrr_landlord: {
+        name: 'BRRRR Landlord',
+        desc: 'Wants strong equity at refinance, rents that support DSCR, and value-add upside through rehab.'
+      },
+      turnkey_rental: {
+        name: 'Turnkey / Light Rehab Landlord',
+        desc: 'Prefers lighter renovations, stable areas, solid rent-to-price ratio, and minimal construction risk.'
+      },
+      midterm_furnished: {
+        name: 'Mid-Term / Furnished Operator',
+        desc: 'Targets hospital/college/employer proximity, good parking, safe area, and high MTR rent potential.'
+      },
+      creative_buyer: {
+        name: 'Creative Finance Buyer',
+        desc: 'Wants subto/seller finance terms: low money down, low monthly, long term, and strong cashflow spread.'
+      }
+    };
+
+    // ---- Logo upload for this packet ----
+    let logoDataUrl = null;
+    const logoInput = document.getElementById('logo-input');
+    const logoTrigger = document.getElementById('logo-upload-trigger');
+    const logoPreview = document.getElementById('logo-preview');
+
+    logoTrigger.addEventListener('click', () => logoInput.click());
+
+    logoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file || !file.type.startsWith('image/')) {
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        logoDataUrl = event.target.result;
+        logoPreview.innerHTML = `
+          <img src="${logoDataUrl}" alt="Logo preview"
+               class="max-h-10 w-auto object-contain rounded-lg bg-slate-900/80 p-1 border border-slate-700">
+        `;
       };
-      // Use your real MB logo file
-      img.src = 'images/mbps-logo.png';
-    }
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    });
 
-    document.addEventListener('DOMContentLoaded', loadMbpsLogo);
+    // ---- Buyer profile description handling ----
+    const buyerProfileEl = document.getElementById('buyer-profile');
+    const buyerProfileDescEl = document.getElementById('buyer-profile-desc');
 
-    // ---- Photo handling ----
+    buyerProfileEl.addEventListener('change', () => {
+      const profile = BUY_BOX_PROFILES[buyerProfileEl.value];
+      if (!profile) {
+        buyerProfileDescEl.textContent = 'Pick a profile to show buyers who this is perfect for.';
+        return;
+      }
+      buyerProfileDescEl.textContent = `${profile.name}: ${profile.desc}`;
+    });
+
+    // ---- Photo handling (with captions & remove) ----
     const dropzone = document.getElementById('photo-dropzone');
     const photoInput = document.getElementById('photo-input');
     const photoTrigger = document.getElementById('photo-trigger');
     const gallery = document.getElementById('photo-gallery');
+
+    let photos = []; // {id, dataUrl, caption}
 
     photoTrigger.addEventListener('click', () => photoInput.click());
     dropzone.addEventListener('click', () => photoInput.click());
@@ -241,7 +447,6 @@
 
     photoInput.addEventListener('change', (e) => {
       handleFiles(e.target.files);
-      // allow re-uploading same files
       e.target.value = '';
     });
 
@@ -251,21 +456,47 @@
 
         const reader = new FileReader();
         reader.onload = (event) => {
+          const id = crypto.randomUUID();
+          const dataUrl = event.target.result;
+
+          photos.push({
+            id,
+            dataUrl,
+            caption: ''
+          });
+
           const card = document.createElement('div');
-          card.className = 'bg-slate-950/80 border border-slate-800 rounded-2xl overflow-hidden flex flex-col gap-2';
+          card.className = 'bg-slate-950/80 border border-slate-800 rounded-2xl overflow-hidden flex flex-col gap-2 relative';
+          card.dataset.photoId = id;
 
           card.innerHTML = `
+            <button class="absolute top-1 right-1 text-[0.65rem] px-1.5 py-0.5 rounded-full bg-slate-900/80 border border-red-500/60 text-red-300 hover:bg-red-500/10 remove-photo">
+              ✕
+            </button>
             <div class="aspect-video overflow-hidden">
-              <img src="${event.target.result}" alt="Property photo"
+              <img src="${dataUrl}" alt="Property photo"
                    class="w-full h-full object-cover">
             </div>
             <div class="p-2 border-t border-slate-800">
               <textarea
-                class="w-full text-[0.7rem] bg-transparent border-0 focus:ring-0 text-slate-200 placeholder:text-slate-500 resize-none"
+                class="photo-caption w-full text-[0.7rem] bg-transparent border-0 focus:ring-0 text-slate-200 placeholder:text-slate-500 resize-none"
                 rows="2"
                 placeholder="Caption / notes (e.g., 'Kitchen – needs full gut')"></textarea>
             </div>
           `;
+
+          const captionEl = card.querySelector('.photo-caption');
+          captionEl.addEventListener('input', () => {
+            const p = photos.find(p => p.id === id);
+            if (p) p.caption = captionEl.value;
+          });
+
+          const removeBtn = card.querySelector('.remove-photo');
+          removeBtn.addEventListener('click', () => {
+            photos = photos.filter(p => p.id !== id);
+            card.remove();
+          });
+
           gallery.appendChild(card);
         };
         reader.readAsDataURL(file);
@@ -317,13 +548,11 @@
         </td>
       `;
 
-      // remove handler
       row.querySelector('button').addEventListener('click', () => {
         row.remove();
         recomputeAvgPps();
       });
 
-      // recalc when sqft or price changes
       row.querySelector('.comp-sqft').addEventListener('input', recomputeAvgPps);
       row.querySelector('.comp-price').addEventListener('input', recomputeAvgPps);
 
@@ -355,7 +584,7 @@
       }
     }
 
-    // start with 3 empty rows
+    // start with 3 empty comp rows
     addCompRow();
     addCompRow();
     addCompRow();
@@ -377,17 +606,27 @@
       const bedsbaths = document.getElementById('deal-bedsbaths').value;
       const notes = document.getElementById('deal-notes').value;
 
-      // compute spread metrics if we have data
       const arvNum = parseFloat(arv || '0');
       const askingNum = parseFloat(asking || '0');
       const repairsNum = parseFloat(repairs || '0');
 
-      let equityLine = '';
+      let allIn = '';
+      let spread = '';
       if (arvNum && askingNum && repairsNum) {
-        const allIn = askingNum + repairsNum;
-        const spread = arvNum - allIn;
-        equityLine = `Buyer all-in (price + repairs): ~$${allIn.toLocaleString()}\nEstimated equity at ARV: ~$${spread.toLocaleString()}`;
+        const allInNum = askingNum + repairsNum;
+        const spreadNum = arvNum - allInNum;
+        allIn = `Buyer all-in (price + repairs): ~$${allInNum.toLocaleString()}`;
+        spread = `Estimated equity at ARV: ~$${spreadNum.toLocaleString()}`;
       }
+
+      // Exit strategies
+      const exitStrategies = Array.from(
+        document.querySelectorAll('input[name="exit-strategy"]:checked')
+      ).map(el => el.value);
+
+      // Buyer profile
+      const buyerProfileId = buyerProfileEl.value;
+      const buyerProfile = BUY_BOX_PROFILES[buyerProfileId];
 
       // build comps summary
       const rows = compBody.querySelectorAll('tr');
@@ -414,7 +653,16 @@
         arv ? `- ARV: $${Number(arv).toLocaleString()}` : '',
         asking ? `- Asking: $${Number(asking).toLocaleString()}` : '',
         repairs ? `- Estimated Repairs: $${Number(repairs).toLocaleString()}` : '',
-        equityLine ? `- ${equityLine}` : '',
+        allIn ? `- ${allIn}` : '',
+        spread ? `- ${spread}` : '',
+        '',
+        `🎯 **Exit Strategy**`,
+        exitStrategies.length ? exitStrategies.map(s => `- ${s}`).join('\n') : '- Not set yet.',
+        '',
+        `👤 **Target Buyer Profile**`,
+        buyerProfile
+          ? `- ${buyerProfile.name}: ${buyerProfile.desc}`
+          : '- Not selected.',
         '',
         `📅 **Status**`,
         `- ${status}${closeDate ? ` | Close: ${closeDate}` : ''}`,
@@ -427,7 +675,9 @@
         notes || '- (Add your buyer-facing pitch here.)',
         '',
         `🔎 Photos`,
-        `- Photos attached separately (see link, email, or text).`
+        photos.length
+          ? '- Photos embedded in attached PDF.'
+          : '- Photos not added yet.'
       ].filter(Boolean).join('\n');
 
       summaryOutput.value = summary;
@@ -446,25 +696,28 @@
       }
     });
 
-    // ---- PDF generation with logo + brand header ----
+    // ---- PDF generation with branding + exit strategies + buyer profile + photos ----
     pdfBtn.addEventListener('click', () => {
-      const { jsPDF } = window.jspdf;
       const doc = new jsPDF('p', 'pt', 'letter');
       const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      const leftMargin = 40;
+      const rightMargin = 40;
+      const bottomMargin = 40;
 
       // Brand bar background
-      doc.setFillColor(16, 185, 129); // emerald-ish
+      doc.setFillColor(16, 185, 129);
       doc.rect(0, 0, pageWidth, 60, 'F');
 
-      // Logo (medium size)
-      const hasLogo = !!mbpsLogoDataUrl;
+      const hasLogo = !!logoDataUrl;
       if (hasLogo) {
         try {
-          const logoW = 60;   // Option B: medium presence
+          const logoW = 60;
           const logoH = 60;
           const logoX = 20;
           const logoY = 0;
-          doc.addImage(mbpsLogoDataUrl, 'PNG', logoX, logoY, logoW, logoH);
+          doc.addImage(logoDataUrl, 'PNG', logoX, logoY, logoW, logoH);
         } catch (e) {
           console.error('Failed to add logo to PDF', e);
         }
@@ -481,7 +734,7 @@
       doc.setFont('helvetica', 'normal');
       doc.text('Wholesale · Creative Finance · Investment Deals', brandTextX, 38);
 
-      // Right-aligned contact info (your real info)
+      // Right-aligned contact info
       doc.setFontSize(9);
       const contactPhone = '984-710-6941';
       const contactEmail = 'mbpropertysolutionz@gmail.com';
@@ -513,63 +766,105 @@
         spread = arvNum - allIn;
       }
 
+      // Exit strategies & buyer profile
+      const exitStrategies = Array.from(
+        document.querySelectorAll('input[name="exit-strategy"]:checked')
+      ).map(el => el.value);
+      const buyerProfileId = buyerProfileEl.value;
+      const buyerProfile = BUY_BOX_PROFILES[buyerProfileId];
+
       // Deal Overview
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
-      doc.text('Deal Overview', 40, y);
+      doc.text('Deal Overview', leftMargin, y);
       y += 18;
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
-      doc.text(`Property: ${address}`, 40, y);
+      doc.text(`Property: ${address}`, leftMargin, y);
       y += 14;
       if (bedsbaths || sqft) {
         doc.text(
           `${bedsbaths ? bedsbaths + ' | ' : ''}${sqft ? sqft + ' sqft' : ''}`,
-          40,
+          leftMargin,
           y
         );
         y += 14;
       }
-      doc.text(`Status: ${status}${closeDate ? ' | Close: ' + closeDate : ''}`, 40, y);
+      doc.text(`Status: ${status}${closeDate ? ' | Close: ' + closeDate : ''}`, leftMargin, y);
       y += 24;
 
       // Key Numbers
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12);
-      doc.text('Key Numbers', 40, y);
+      doc.text('Key Numbers', leftMargin, y);
       y += 14;
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
       if (arv) {
-        doc.text(`ARV: $${Number(arv).toLocaleString()}`, 40, y);
+        doc.text(`ARV: $${Number(arv).toLocaleString()}`, leftMargin, y);
         y += 14;
       }
       if (asking) {
-        doc.text(`Asking: $${Number(asking).toLocaleString()}`, 40, y);
+        doc.text(`Asking: $${Number(asking).toLocaleString()}`, leftMargin, y);
         y += 14;
       }
       if (repairs) {
-        doc.text(`Estimated Repairs: $${Number(repairs).toLocaleString()}`, 40, y);
+        doc.text(`Estimated Repairs: $${Number(repairs).toLocaleString()}`, leftMargin, y);
         y += 14;
       }
       if (allIn !== null && spread !== null) {
-        doc.text(`Buyer all-in (price + repairs): ~$${allIn.toLocaleString()}`, 40, y);
+        doc.text(`Buyer all-in (price + repairs): ~$${allIn.toLocaleString()}`, leftMargin, y);
         y += 14;
-        doc.text(`Estimated equity at ARV: ~$${spread.toLocaleString()}`, 40, y);
+        doc.text(`Estimated equity at ARV: ~$${spread.toLocaleString()}`, leftMargin, y);
         y += 18;
       } else {
         y += 4;
       }
 
+      // Exit Strategy section
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Exit Strategy', leftMargin, y);
+      y += 14;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      if (exitStrategies.length) {
+        exitStrategies.forEach(es => {
+          doc.text(`• ${es}`, leftMargin, y);
+          y += 12;
+        });
+      } else {
+        doc.text('• Not specified', leftMargin, y);
+        y += 12;
+      }
+      y += 6;
+
+      // Buyer Profile section
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Target Buyer Profile', leftMargin, y);
+      y += 14;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      if (buyerProfile) {
+        const bpText = `${buyerProfile.name}: ${buyerProfile.desc}`;
+        const bpLines = doc.splitTextToSize(bpText, pageWidth - leftMargin - rightMargin);
+        doc.text(bpLines, leftMargin, y);
+        y += bpLines.length * 12 + 10;
+      } else {
+        doc.text('Not selected', leftMargin, y);
+        y += 16;
+      }
+
       // Comps table
-      const rows = [];
+      const compRows = [];
       compBody.querySelectorAll('tr').forEach(row => {
         const inputs = row.querySelectorAll('input');
         if (!inputs.length) return;
         const [addr, dist, bb, csqft, price, dom, cnotes] = inputs;
         if (!addr.value && !price.value) return;
-        rows.push([
+        compRows.push([
           addr.value || '',
           dist.value || '',
           bb.value || '',
@@ -580,48 +875,355 @@
         ]);
       });
 
-      if (rows.length) {
+      if (compRows.length) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
-        doc.text('Sales Comparables', 40, y);
+        if (y > pageHeight - 200) {
+          doc.addPage();
+          y = 60;
+        }
+        doc.text('Sales Comparables', leftMargin, y);
         y += 10;
 
         doc.autoTable({
           startY: y + 4,
           head: [['Address', 'Dist (mi)', 'Beds/Baths', 'Sq Ft', 'Sold Price', 'DOM', 'Notes']],
-          body: rows,
+          body: compRows,
           styles: { fontSize: 8, cellPadding: 3 },
           headStyles: { fillColor: [16, 185, 129], textColor: 255 },
-          margin: { left: 40, right: 40 }
+          margin: { left: leftMargin, right: rightMargin }
         });
         y = doc.lastAutoTable.finalY + 20;
       }
 
-      // Notes / Pitch
+      // Notes / Pitch (buyer-facing)
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12);
-      doc.text('Notes / Investor Pitch', 40, y);
+      if (y > pageHeight - 200) {
+        doc.addPage();
+        y = 60;
+      }
+      doc.text('Notes / Investor Pitch', leftMargin, y);
       y += 14;
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
       const notesText = notes || '(Add your buyer-facing pitch here: condition, scope of work, exit strategies, area highlights, etc.)';
-      const splitNotes = doc.splitTextToSize(notesText, 515);
-      doc.text(splitNotes, 40, y);
-      y += splitNotes.length * 12 + 10;
+      const splitNotes = doc.splitTextToSize(notesText, pageWidth - leftMargin - rightMargin);
+      doc.text(splitNotes, leftMargin, y);
+      y += splitNotes.length * 12 + 16;
 
-      // Footer
+      // Photos with captions
+      if (photos.length) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        if (y > pageHeight - 200) {
+          doc.addPage();
+          y = 60;
+        }
+        doc.text('Photos', leftMargin, y);
+        y += 16;
+
+        photos.forEach(photo => {
+          const maxWidth = pageWidth - leftMargin - rightMargin;
+          const imgWidth = maxWidth;
+          const imgHeight = maxWidth * 0.6; // landscape-ish
+
+          if (y + imgHeight + 40 > pageHeight - bottomMargin) {
+            doc.addPage();
+            y = 60;
+          }
+
+          try {
+            doc.addImage(photo.dataUrl, 'JPEG', leftMargin, y, imgWidth, imgHeight);
+          } catch (e) {
+            try {
+              doc.addImage(photo.dataUrl, 'PNG', leftMargin, y, imgWidth, imgHeight);
+            } catch (err) {
+              console.error('Error adding photo to PDF', err);
+            }
+          }
+          y += imgHeight + 10;
+
+          if (photo.caption && photo.caption.trim()) {
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(9);
+            const capLines = doc.splitTextToSize(photo.caption.trim(), maxWidth);
+            doc.text(capLines, leftMargin, y);
+            y += capLines.length * 11 + 10;
+          } else {
+            y += 4;
+          }
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10);
+        });
+      }
+
+      // Footer (no internal notes, no seller info)
       doc.setFontSize(9);
       doc.setTextColor(120);
-      doc.text('Photos are provided separately (see email/text attachments or shared folder link).', 40, 770);
-      doc.text('MB Property Solutions · Confidential Buyer Packet', 40, 784);
+      doc.text('MB Property Solutions · Confidential Buyer Packet', leftMargin, pageHeight - 26);
 
       const safeAddress = address.replace(/[^a-z0-9]/gi, '_').slice(0, 40) || 'mbps_deal_packet';
       doc.save(`${safeAddress}.pdf`);
     });
-  </script>
 
-  <!-- Service Worker registration -->
-  <script>
+    // ---- Saved Packets / Templates (localStorage) ----
+    const PACKET_STORAGE_KEY = 'mbpsDealPacketsV1';
+    let savedPackets = [];
+    let selectedPacketId = null;
+
+    const packetNameEl = document.getElementById('packet-name');
+    const packetListEl = document.getElementById('packet-list');
+    const savePacketBtn = document.getElementById('save-packet');
+    const updatePacketBtn = document.getElementById('update-packet');
+    const loadPacketBtn = document.getElementById('load-packet');
+    const deletePacketBtn = document.getElementById('delete-packet');
+
+    function loadSavedPackets() {
+      try {
+        const raw = localStorage.getItem(PACKET_STORAGE_KEY);
+        savedPackets = raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        console.error('Failed to load saved packets', e);
+        savedPackets = [];
+      }
+      renderSavedPackets();
+    }
+
+    function persistSavedPackets() {
+      localStorage.setItem(PACKET_STORAGE_KEY, JSON.stringify(savedPackets));
+    }
+
+    function renderSavedPackets() {
+      packetListEl.innerHTML = '';
+      if (!savedPackets.length) {
+        packetListEl.innerHTML =
+          '<div class="px-3 py-2 text-[0.7rem] text-slate-500">No saved packets yet.</div>';
+        return;
+      }
+
+      savedPackets
+        .slice()
+        .sort((a, b) => b.updatedAt - a.updatedAt)
+        .forEach(packet => {
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className =
+            'w-full text-left px-3 py-2 flex items-center justify-between gap-2 hover:bg-slate-800/80';
+          if (packet.id === selectedPacketId) {
+            row.classList.add('bg-slate-800');
+          }
+          row.dataset.id = packet.id;
+          const updatedDate = new Date(packet.updatedAt);
+          row.innerHTML = `
+            <div class="flex-1 min-w-0">
+              <div class="truncate text-[0.75rem] text-slate-100 font-medium">${packet.name}</div>
+              <div class="text-[0.65rem] text-slate-500 truncate">
+                ${packet.address || 'No address'} · ${packet.buyerProfileName || 'No profile set'}
+              </div>
+            </div>
+            <div class="text-[0.65rem] text-slate-500 whitespace-nowrap pl-2">
+              ${updatedDate.toLocaleDateString()}
+            </div>
+          `;
+          row.addEventListener('click', () => {
+            selectedPacketId = packet.id;
+            packetNameEl.value = packet.name || '';
+            renderSavedPackets();
+          });
+          packetListEl.appendChild(row);
+        });
+    }
+
+    function collectPacketState() {
+      const address = document.getElementById('deal-address').value || '';
+      const arv = document.getElementById('deal-arv').value || '';
+      const asking = document.getElementById('deal-asking').value || '';
+      const repairs = document.getElementById('deal-repairs').value || '';
+      const status = document.getElementById('deal-status').value || '';
+      const closeDate = document.getElementById('deal-close-date').value || '';
+      const sqft = document.getElementById('deal-sqft').value || '';
+      const bedsbaths = document.getElementById('deal-bedsbaths').value || '';
+      const notes = document.getElementById('deal-notes').value || '';
+      const internalNotes = document.getElementById('internal-notes').value || '';
+
+      const exitStrategies = Array.from(
+        document.querySelectorAll('input[name="exit-strategy"]:checked')
+      ).map(el => el.value);
+
+      const buyerProfileId = buyerProfileEl.value;
+      const buyerProfile = BUY_BOX_PROFILES[buyerProfileId];
+      const buyerProfileName = buyerProfile ? buyerProfile.name : '';
+
+      const comps = [];
+      compBody.querySelectorAll('tr').forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        if (!inputs.length) return;
+        const [addr, dist, bb, csqft, price, dom, cnotes] = inputs;
+        if (
+          addr.value ||
+          dist.value ||
+          bb.value ||
+          csqft.value ||
+          price.value ||
+          dom.value ||
+          cnotes.value
+        ) {
+          comps.push({
+            address: addr.value || '',
+            distance: dist.value || '',
+            bedsbaths: bb.value || '',
+            sqft: csqft.value || '',
+            price: price.value || '',
+            dom: dom.value || '',
+            notes: cnotes.value || ''
+          });
+        }
+      });
+
+      return {
+        address,
+        arv,
+        asking,
+        repairs,
+        status,
+        closeDate,
+        sqft,
+        bedsbaths,
+        notes,
+        internalNotes,
+        exitStrategies,
+        buyerProfileId,
+        buyerProfileName,
+        comps
+        // photos deliberately NOT stored to keep storage small
+      };
+    }
+
+    function applyPacketState(state) {
+      document.getElementById('deal-address').value = state.address || '';
+      document.getElementById('deal-arv').value = state.arv || '';
+      document.getElementById('deal-asking').value = state.asking || '';
+      document.getElementById('deal-repairs').value = state.repairs || '';
+      document.getElementById('deal-status').value = state.status || 'Under Contract';
+      document.getElementById('deal-close-date').value = state.closeDate || '';
+      document.getElementById('deal-sqft').value = state.sqft || '';
+      document.getElementById('deal-bedsbaths').value = state.bedsbaths || '';
+      document.getElementById('deal-notes').value = state.notes || '';
+      document.getElementById('internal-notes').value = state.internalNotes || '';
+
+      // Exit strategies
+      document
+        .querySelectorAll('input[name="exit-strategy"]')
+        .forEach(el => (el.checked = false));
+      if (Array.isArray(state.exitStrategies)) {
+        document
+          .querySelectorAll('input[name="exit-strategy"]')
+          .forEach(el => {
+            if (state.exitStrategies.includes(el.value)) {
+              el.checked = true;
+            }
+          });
+      }
+
+      // Buyer profile
+      buyerProfileEl.value = state.buyerProfileId || '';
+      const profile = BUY_BOX_PROFILES[state.buyerProfileId || ''];
+      if (profile) {
+        buyerProfileDescEl.textContent = `${profile.name}: ${profile.desc}`;
+      } else {
+        buyerProfileDescEl.textContent = 'Pick a profile to show buyers who this is perfect for.';
+      }
+
+      // Comps
+      compBody.innerHTML = '';
+      if (Array.isArray(state.comps) && state.comps.length) {
+        state.comps.forEach(c => addCompRow(c));
+      } else {
+        addCompRow();
+        addCompRow();
+        addCompRow();
+      }
+      recomputeAvgPps();
+
+      // Photos: reset
+      photos = [];
+      gallery.innerHTML = '';
+    }
+
+    savePacketBtn.addEventListener('click', () => {
+      const name = packetNameEl.value.trim();
+      if (!name) {
+        alert('Enter a name for this packet/template first.');
+        return;
+      }
+      const state = collectPacketState();
+      const now = Date.now();
+      const id = crypto.randomUUID();
+      savedPackets.push({
+        id,
+        name,
+        updatedAt: now,
+        ...state
+      });
+      selectedPacketId = id;
+      persistSavedPackets();
+      renderSavedPackets();
+    });
+
+    updatePacketBtn.addEventListener('click', () => {
+      if (!selectedPacketId) {
+        alert('Select a saved packet to update.');
+        return;
+      }
+      const idx = savedPackets.findIndex(p => p.id === selectedPacketId);
+      if (idx === -1) {
+        alert('Selected packet not found.');
+        return;
+      }
+      const name = packetNameEl.value.trim() || savedPackets[idx].name;
+      const state = collectPacketState();
+      const now = Date.now();
+      savedPackets[idx] = {
+        ...savedPackets[idx],
+        name,
+        updatedAt: now,
+        ...state
+      };
+      persistSavedPackets();
+      renderSavedPackets();
+    });
+
+    loadPacketBtn.addEventListener('click', () => {
+      if (!selectedPacketId) {
+        alert('Select a saved packet to load.');
+        return;
+      }
+      const packet = savedPackets.find(p => p.id === selectedPacketId);
+      if (!packet) {
+        alert('Selected packet not found.');
+        return;
+      }
+      applyPacketState(packet);
+    });
+
+    deletePacketBtn.addEventListener('click', () => {
+      if (!selectedPacketId) {
+        alert('Select a saved packet to delete.');
+        return;
+      }
+      if (!confirm('Delete this saved packet/template?')) return;
+      savedPackets = savedPackets.filter(p => p.id !== selectedPacketId);
+      selectedPacketId = null;
+      persistSavedPackets();
+      renderSavedPackets();
+    });
+
+    // Initialize saved packets on load
+    loadSavedPackets();
+
+    // Service Worker registration (PWA)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker
