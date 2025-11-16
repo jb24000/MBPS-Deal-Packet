@@ -356,6 +356,16 @@
   <script>
     const { jsPDF } = window.jspdf;
 
+    // ---- Helpers ----
+    function formatDateMDY(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+      const [year, month, day] = parts;
+      if (!year || !month || !day) return dateStr;
+      return `${month}/${day}/${year}`;
+    }
+
     // ---- Buyer profiles (buy-box) ----
     const BUY_BOX_PROFILES = {
       cash_flip: {
@@ -380,8 +390,11 @@
       }
     };
 
-    // ---- Logo upload for this packet ----
+    // ---- Logo upload for this packet (keep aspect ratio) ----
     let logoDataUrl = null;
+    let logoOrigWidth = null;
+    let logoOrigHeight = null;
+
     const logoInput = document.getElementById('logo-input');
     const logoTrigger = document.getElementById('logo-upload-trigger');
     const logoPreview = document.getElementById('logo-preview');
@@ -395,11 +408,20 @@
       }
       const reader = new FileReader();
       reader.onload = (event) => {
-        logoDataUrl = event.target.result;
-        logoPreview.innerHTML = `
-          <img src="${logoDataUrl}" alt="Logo preview"
-               class="max-h-10 w-auto object-contain rounded-lg bg-slate-900/80 p-1 border border-slate-700">
-        `;
+        const dataUrl = event.target.result;
+
+        const img = new Image();
+        img.onload = () => {
+          logoDataUrl = dataUrl;
+          logoOrigWidth = img.width;
+          logoOrigHeight = img.height;
+
+          logoPreview.innerHTML = `
+            <img src="${logoDataUrl}" alt="Logo preview"
+                 class="max-h-10 w-auto object-contain rounded-lg bg-slate-900/80 p-1 border border-slate-700">
+          `;
+        };
+        img.src = dataUrl;
       };
       reader.readAsDataURL(file);
       e.target.value = '';
@@ -418,13 +440,13 @@
       buyerProfileDescEl.textContent = `${profile.name}: ${profile.desc}`;
     });
 
-    // ---- Photo handling (with captions, rotate, remove) ----
+    // ---- Photo handling (with baked-in rotation + delete) ----
     const dropzone = document.getElementById('photo-dropzone');
     const photoInput = document.getElementById('photo-input');
     const photoTrigger = document.getElementById('photo-trigger');
     const gallery = document.getElementById('photo-gallery');
 
-    // photos: {id, dataUrl, caption, rotation}
+    // photos: {id, dataUrl, caption}
     let photos = [];
 
     photoTrigger.addEventListener('click', () => photoInput.click());
@@ -460,74 +482,90 @@
           const id = crypto.randomUUID();
           const dataUrl = event.target.result;
 
-          const photoObj = {
+          photos.push({
             id,
             dataUrl,
-            caption: '',
-            rotation: 0 // degrees, multiples of 90
-          };
-          photos.push(photoObj);
-
-          const card = document.createElement('div');
-          card.className = 'bg-slate-950/80 border border-slate-800 rounded-2xl overflow-hidden flex flex-col gap-2 relative';
-          card.dataset.photoId = id;
-
-          card.innerHTML = `
-            <div class="absolute top-1 right-1 flex gap-1">
-              <button class="rotate-photo text-[0.65rem] px-1.5 py-0.5 rounded-full bg-slate-900/80 border border-slate-600 text-slate-200 hover:bg-slate-800">
-                ⟳
-              </button>
-              <button class="remove-photo text-[0.65rem] px-1.5 py-0.5 rounded-full bg-slate-900/80 border border-red-500/60 text-red-300 hover:bg-red-500/10">
-                ✕
-              </button>
-            </div>
-            <div class="aspect-video overflow-hidden">
-              <img src="${dataUrl}" alt="Property photo"
-                   class="photo-img w-full h-full object-cover transition-transform duration-150">
-            </div>
-            <div class="p-2 border-t border-slate-800">
-              <textarea
-                class="photo-caption w-full text-[0.7rem] bg-transparent border-0 focus:ring-0 text-slate-200 placeholder:text-slate-500 resize-none"
-                rows="2"
-                placeholder="Caption / notes (e.g., 'Kitchen – needs full gut')"></textarea>
-            </div>
-          `;
-
-          const imgEl = card.querySelector('.photo-img');
-          const captionEl = card.querySelector('.photo-caption');
-          const rotateBtn = card.querySelector('.rotate-photo');
-          const removeBtn = card.querySelector('.remove-photo');
-
-          function applyRotation() {
-            const p = photos.find(p => p.id === id);
-            const deg = p ? p.rotation : 0;
-            imgEl.style.transform = `rotate(${deg}deg)`;
-            imgEl.style.transformOrigin = 'center center';
-          }
-          applyRotation();
-
-          captionEl.addEventListener('input', () => {
-            const p = photos.find(p => p.id === id);
-            if (p) p.caption = captionEl.value;
+            caption: ''
           });
 
-          rotateBtn.addEventListener('click', () => {
-            const p = photos.find(p => p.id === id);
-            if (!p) return;
-            p.rotation = ((p.rotation || 0) + 90) % 360; // rotate clockwise by 90°
-            applyRotation();
-          });
-
-          removeBtn.addEventListener('click', () => {
-            photos = photos.filter(p => p.id !== id);
-            card.remove();
-          });
-
-          gallery.appendChild(card);
+          renderPhotos();
         };
         reader.readAsDataURL(file);
       });
     }
+
+    function renderPhotos() {
+      gallery.innerHTML = '';
+      photos.forEach(photo => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-950/80 border border-slate-800 rounded-2xl overflow-hidden flex flex-col gap-2 relative';
+        card.dataset.photoId = photo.id;
+
+        card.innerHTML = `
+          <div class="absolute top-1 right-1 flex gap-1">
+            <button class="rotate-photo text-[0.65rem] px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-600 text-slate-200 hover:bg-slate-800">
+              ⟳ Rotate
+            </button>
+            <button class="remove-photo text-[0.65rem] px-2 py-0.5 rounded-full bg-slate-900/80 border border-red-500/60 text-red-300 hover:bg-red-500/10">
+              🗑 Remove
+            </button>
+          </div>
+          <div class="aspect-video overflow-hidden">
+            <img src="${photo.dataUrl}" alt="Property photo"
+                 class="photo-img w-full h-full object-cover">
+          </div>
+          <div class="p-2 border-t border-slate-800">
+            <textarea
+              class="photo-caption w-full text-[0.7rem] bg-transparent border-0 focus:ring-0 text-slate-200 placeholder:text-slate-500 resize-none"
+              rows="2"
+              placeholder="Caption / notes (e.g., 'Kitchen – needs full gut')">${photo.caption || ''}</textarea>
+          </div>
+        `;
+
+        const captionEl = card.querySelector('.photo-caption');
+        const rotateBtn = card.querySelector('.rotate-photo');
+        const removeBtn = card.querySelector('.remove-photo');
+
+        captionEl.addEventListener('input', () => {
+          const p = photos.find(p => p.id === photo.id);
+          if (p) p.caption = captionEl.value;
+        });
+
+        rotateBtn.addEventListener('click', () => rotatePhoto(photo.id));
+        removeBtn.addEventListener('click', () => {
+          photos = photos.filter(p => p.id !== photo.id);
+          renderPhotos();
+        });
+
+        gallery.appendChild(card);
+      });
+    }
+
+    // Rotate the actual image data (90° clockwise), so the PDF is correct without Adobe
+    function rotatePhoto(photoId) {
+      const photo = photos.find(p => p.id === photoId);
+      if (!photo) return;
+
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = img.height;
+        canvas.height = img.width;
+
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(90 * Math.PI / 180);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+        photo.dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        renderPhotos();
+      };
+      img.src = photo.dataUrl;
+    }
+
+    // initial render
+    renderPhotos();
 
     // ---- Comps ----
     const compBody = document.getElementById('comp-body');
@@ -627,7 +665,8 @@
       const asking = document.getElementById('deal-asking').value;
       const repairs = document.getElementById('deal-repairs').value;
       const status = document.getElementById('deal-status').value;
-      const closeDate = document.getElementById('deal-close-date').value;
+      const closeDateRaw = document.getElementById('deal-close-date').value;
+      const closeDateDisplay = formatDateMDY(closeDateRaw);
       const sqft = document.getElementById('deal-sqft').value;
       const bedsbaths = document.getElementById('deal-bedsbaths').value;
       const notes = document.getElementById('deal-notes').value;
@@ -691,7 +730,7 @@
           : '- Not selected.',
         '',
         `📅 **Status**`,
-        `- ${status}${closeDate ? ` | Close: ${closeDate}` : ''}`,
+        `- ${status}${closeDateDisplay ? ` | Close: ${closeDateDisplay}` : ''}`,
         '',
         `📊 **Comps (manual)**`,
         `Avg price per sqft (set): ${pps}`,
@@ -739,10 +778,38 @@
       const hasLogo = !!logoDataUrl;
       if (hasLogo) {
         try {
-          const logoW = 60;
-          const logoH = 60;
+          // Keep aspect ratio, fit into max box
+          const maxW = 70;
+          const maxH = 40;
+          let logoW = maxW;
+          let logoH = maxH;
+
+          if (logoOrigWidth && logoOrigHeight) {
+            const ratio = logoOrigWidth / logoOrigHeight;
+            if (ratio >= 1) {
+              // wider than tall
+              logoW = maxW;
+              logoH = maxW / ratio;
+              if (logoH > maxH) {
+                const scale = maxH / logoH;
+                logoH = maxH;
+                logoW = logoW * scale;
+              }
+            } else {
+              // taller than wide
+              logoH = maxH;
+              logoW = maxH * ratio;
+              if (logoW > maxW) {
+                const scale = maxW / logoW;
+                logoW = maxW;
+                logoH = logoH * scale;
+              }
+            }
+          }
+
           const logoX = 20;
-          const logoY = 0;
+          const logoY = (60 - logoH) / 2;
+
           doc.addImage(logoDataUrl, 'PNG', logoX, logoY, logoW, logoH);
         } catch (e) {
           console.error('Failed to add logo to PDF', e);
@@ -753,7 +820,7 @@
       doc.setTextColor(255);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(16);
-      const brandTextX = hasLogo ? 90 : 40;
+      const brandTextX = hasLogo ? 100 : 40;
       doc.text('MB Property Solutions', brandTextX, 24);
 
       doc.setFontSize(10);
@@ -776,7 +843,8 @@
       const asking = document.getElementById('deal-asking').value;
       const repairs = document.getElementById('deal-repairs').value;
       const status = document.getElementById('deal-status').value;
-      const closeDate = document.getElementById('deal-close-date').value;
+      const closeDateRaw = document.getElementById('deal-close-date').value;
+      const closeDateDisplay = formatDateMDY(closeDateRaw);
       const sqft = document.getElementById('deal-sqft').value;
       const bedsbaths = document.getElementById('deal-bedsbaths').value;
       const notes = document.getElementById('deal-notes').value;
@@ -817,7 +885,11 @@
         );
         y += 14;
       }
-      doc.text(`Status: ${status}${closeDate ? ' | Close: ' + closeDate : ''}`, leftMargin, y);
+      doc.text(
+        `Status: ${status}${closeDateDisplay ? ' | Close: ' + closeDateDisplay : ''}`,
+        leftMargin,
+        y
+      );
       y += 24;
 
       // Key Numbers
@@ -938,7 +1010,7 @@
       doc.text(splitNotes, leftMargin, y);
       y += splitNotes.length * 12 + 16;
 
-      // Photos with captions — multiple per page, honoring rotation
+      // Photos with captions — multiple per page, using baked-in rotation
       if (photos.length) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
@@ -959,7 +1031,7 @@
         let colIndex = 0;
         let rowBottomY = y + photoHeight + 10;
 
-        photos.forEach((photo, idx) => {
+        photos.forEach((photo) => {
           // If starting a new row and not enough space, new page
           if (colIndex === 0 && y + photoHeight + 40 > pageHeight - bottomMargin) {
             doc.addPage();
@@ -969,7 +1041,7 @@
 
           const x = leftMargin + colIndex * (photoWidth + gapX);
 
-          // Add image with rotation
+          // Add image (no extra rotation here; already baked into dataUrl)
           try {
             doc.addImage(
               photo.dataUrl,
@@ -979,8 +1051,7 @@
               photoWidth,
               photoHeight,
               undefined,
-              'FAST',
-              photo.rotation || 0
+              'FAST'
             );
           } catch (e) {
             try {
@@ -992,8 +1063,7 @@
                 photoWidth,
                 photoHeight,
                 undefined,
-                'FAST',
-                photo.rotation || 0
+                'FAST'
               );
             } catch (err) {
               console.error('Error adding photo to PDF', err);
@@ -1022,7 +1092,7 @@
           }
         });
 
-        // If last row wasn't closed, bump y to below photos (not strictly needed, but clean)
+        // If last row wasn't closed, bump y to below photos
         if (colIndex !== 0) {
           y = rowBottomY + gapY;
         }
@@ -1093,7 +1163,7 @@
               </div>
             </div>
             <div class="text-[0.65rem] text-slate-500 whitespace-nowrap pl-2">
-              ${updatedDate.toLocaleDateString()}
+              ${updatedDate.toLocaleDateString('en-US')}
             </div>
           `;
           row.addEventListener('click', () => {
@@ -1216,7 +1286,7 @@
       }
       recomputeAvgPps();
 
-      // Photos: reset
+      // Photos: reset (not part of template)
       photos = [];
       gallery.innerHTML = '';
     }
